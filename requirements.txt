@@ -1,0 +1,37 @@
+# ---------------------
+# Core Flask + Database
+# ---------------------
+Flask
+Flask-Cors
+Flask-Migrate
+Flask-SQLAlchemy
+psycopg2-binary
+python-dotenv
+
+# ---------------------
+# NLP
+# ---------------------
+nltk
+spacy
+dateparser
+
+# ---------------------
+# Machine Learning & Data
+# ---------------------
+scikit-learn
+joblib
+pandas   # for dataset loading
+numpy    # often required by sklearn/pandas
+
+# ---------------------
+# Whisper (Speech-to-Text)
+# ---------------------
+openai-whisper
+# optional: faster inference
+# faster-whisper
+
+# ---------------------
+# Testing
+# ---------------------
+pytest
+pytest-flask
