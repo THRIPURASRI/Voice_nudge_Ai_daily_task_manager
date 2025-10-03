@@ -1,8 +1,11 @@
 text,category,priority
-Pay electricity bill tomorrow at 6 PM,Finance,High
+Schedule a meeting today,Work,High
+Pay electricity bill tomorrow at 6 PM,Finance,Medium
+Doctor appointment at 6 PM today,Health,High
 Submit project report by Monday,Work,High
 Buy vegetables from market,Errands,Medium
 Call mom,Personal,Low
+Call mom tomorrow at 8 AM,Personal,Low
 Book doctor appointment for next week,Health,Medium
 Study for upcoming exam,Study,High
 Prepare monthly budget,Finance,Medium

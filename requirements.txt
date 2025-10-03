@@ -9,6 +9,18 @@ psycopg2-binary
 python-dotenv
 
 # ---------------------
+# Authentication & Security
+# ---------------------
+Flask-JWT-Extended
+Werkzeug
+
+# ---------------------
+# Email & Scheduling
+# ---------------------
+Flask-Mail
+Flask-APScheduler
+
+# ---------------------
 # NLP
 # ---------------------
 nltk
@@ -20,15 +32,26 @@ dateparser
 # ---------------------
 scikit-learn
 joblib
-pandas   # for dataset loading
-numpy    # often required by sklearn/pandas
+pandas
+numpy
 
 # ---------------------
 # Whisper (Speech-to-Text)
 # ---------------------
 openai-whisper
-# optional: faster inference
+# optional: faster inference (GPU-optimized)
 # faster-whisper
+
+# ---------------------
+# Google Cloud (Optional, if you enable Google STT/Translate later)
+# ---------------------
+google-cloud-speech
+google-cloud-translate
+
+# ---------------------
+# Audio Handling
+# ---------------------
+pydub
 
 # ---------------------
 # Testing

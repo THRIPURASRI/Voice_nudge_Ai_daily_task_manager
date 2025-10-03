@@ -2,7 +2,7 @@ import os
 import whisper
 
 # Load Whisper model (tiny, base, small, medium, large)
-model_size = os.getenv("WHISPER_MODEL", "base")
+model_size = os.getenv("WHISPER_MODEL", "small")
 model = whisper.load_model(model_size)
 
 def transcribe_audio(audio_file_path: str, translate: bool = True) -> str:
