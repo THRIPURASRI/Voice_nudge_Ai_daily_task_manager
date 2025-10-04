@@ -5,10 +5,26 @@ from voicenudge.models import Task, TaskHistory
 from voicenudge.nlp.utils import parse_task
 from voicenudge.ml.model_service import predict_category, predict_priority
 from voicenudge.speech.whisper_stt import transcribe_audio
-from datetime import datetime
+from voicenudge.models import Reminder
+from datetime import datetime, timedelta, timezone
 
 
 tasks_bp = Blueprint("tasks", __name__)
+
+def convert_ist_to_utc(ist_datetime_str):
+    """Convert ISO 8601 datetime string from IST to UTC."""
+    try:
+        ist_offset = timedelta(hours=5, minutes=30)
+        ist = timezone(ist_offset)
+        ist_dt = datetime.fromisoformat(ist_datetime_str)
+        ist_dt = ist_dt.replace(tzinfo=ist)
+        utc_dt = ist_dt.astimezone(timezone.utc)
+        return utc_dt
+    except Exception:
+        return None
+# -------------------------
+# Ingest task via text
+# -------------------------
 
 @tasks_bp.route("/ingest_text", methods=["POST"])
 @jwt_required()
@@ -102,6 +118,8 @@ def voice_ingest():
 @tasks_bp.route("/<int:task_id>/set_due", methods=["PATCH"])
 @jwt_required()
 def set_due(task_id):
+    from datetime import datetime, timedelta, timezone
+
     uid = int(get_jwt_identity())
     task = Task.query.filter_by(id=task_id, user_id=uid).first_or_404()
 
@@ -110,10 +128,39 @@ def set_due(task_id):
     if not new_due:
         return jsonify({"error": "due_at required (ISO 8601 format)"}), 400
 
-    task.due_at = datetime.fromisoformat(new_due)
+    try:
+        # ✅ Parse IST datetime string (from frontend or Postman)
+        ist_offset = timedelta(hours=5, minutes=30)
+        ist_tz = timezone(ist_offset)
+        due_time_ist = datetime.fromisoformat(new_due)
+        due_time_ist = due_time_ist.replace(tzinfo=ist_tz)
+
+        # ✅ Convert IST → UTC for consistent database scheduling
+        due_time_utc = due_time_ist.astimezone(timezone.utc)
+
+    except ValueError:
+        return jsonify({"error": "Invalid ISO datetime format"}), 400
+
+    # ✅ Update task due time in UTC
+    task.due_at = due_time_utc
+
+    # ✅ Automatically create reminder 5 minutes before due time
+    remind_time_utc = due_time_utc - timedelta(minutes=5)
+    reminder = Reminder(task_id=task.id, user_id=uid, remind_at=remind_time_utc)
+    db.session.add(reminder)
     db.session.commit()
 
-    return jsonify({"message": f"Task {task.id} due date updated", "due_at": str(task.due_at)})
+    # ✅ Convert back to IST just for displaying in response
+    due_time_ist_display = due_time_utc.astimezone(ist_tz)
+    remind_time_ist_display = remind_time_utc.astimezone(ist_tz)
+
+    return jsonify({
+        "message": f"Task {task.id} due date updated",
+        "due_at_utc": due_time_utc.isoformat(),
+        "remind_at_utc": remind_time_utc.isoformat(),
+        "due_at_ist": due_time_ist_display.strftime("%Y-%m-%d %H:%M:%S"),
+        "remind_at_ist": remind_time_ist_display.strftime("%Y-%m-%d %H:%M:%S")
+    }), 200
 
 # -------------------------
 # List tasks (per user)
